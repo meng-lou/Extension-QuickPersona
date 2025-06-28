@@ -1,9 +1,13 @@
-import { animation_duration, eventSource, event_types } from '../../../../script.js';
+import { animation_duration, eventSource, event_types, getThumbnailUrl } from '../../../../script.js';
 import { power_user } from '../../../power-user.js';
 import { retriggerFirstMessageOnEmptyChat, getUserAvatar, getUserAvatars, setUserAvatar, user_avatar } from '../../../personas.js';
+import { Popper } from '../../../../lib.js';
 
+/** @type {Popper.Instance} */
 let popper = null;
 let isOpen = false;
+
+const supportsPersonaThumbnails = getThumbnailUrl('persona', 'test.png', true).includes('&t=');
 
 function addQuickPersonaButton() {
     const quickPersonaButton = `
@@ -15,6 +19,18 @@ function addQuickPersonaButton() {
     $('#quickPersona').on('click', () => {
         toggleQuickPersonaSelector();
     });
+}
+
+/**
+ * Get the URL of the user avatar image.
+ * @param {string} userAvatar The user avatar identifier
+ * @returns {string} URL of the user avatar image
+ */
+function getImageUrl(userAvatar) {
+    if (supportsPersonaThumbnails) {
+        return getThumbnailUrl('persona', userAvatar, true);
+    }
+    return `${getUserAvatar(userAvatar)}?t=${Date.now()}`;
 }
 
 async function toggleQuickPersonaSelector() {
@@ -30,7 +46,7 @@ async function openQuickPersonaSelector() {
     const userAvatars = await getUserAvatars(false);
     const quickPersonaList = $('<div id="quickPersonaMenu"><ul class="list-group"></ul></div>');
     for (const userAvatar of userAvatars) {
-        const imgUrl = `${getUserAvatar(userAvatar)}?t=${Date.now()}`;
+        const imgUrl = getImageUrl(userAvatar);
         const imgTitle = power_user.personas[userAvatar] || userAvatar;
         const isSelected = userAvatar === user_avatar;
         const isDefault = userAvatar === power_user.default_persona;
@@ -65,7 +81,7 @@ function closeQuickPersonaSelector() {
 
 function changeQuickPersona() {
     setTimeout(() => {
-        const imgUrl = `${getUserAvatar(user_avatar)}?t=${Date.now()}`;
+        const imgUrl = getImageUrl(user_avatar);
         const imgTitle = power_user.personas[user_avatar] || user_avatar;
         $('#quickPersonaImg').attr('src', imgUrl).attr('title', imgTitle);
     }, 100);
