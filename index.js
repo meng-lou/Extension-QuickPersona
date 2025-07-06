@@ -46,8 +46,10 @@ async function openQuickPersonaSelector() {
     const userAvatars = await getUserAvatars(false);
     const quickPersonaList = $('<div id="quickPersonaMenu"><ul class="list-group"></ul></div>');
     for (const userAvatar of userAvatars) {
+        const personaName = power_user.personas[userAvatar] || userAvatar;
+        const personaTitle = power_user.persona_descriptions[userAvatar]?.title || '';
         const imgUrl = getImageUrl(userAvatar);
-        const imgTitle = power_user.personas[userAvatar] || userAvatar;
+        const imgTitle = personaTitle ? `${personaName} - ${personaTitle}` : personaName;
         const isSelected = userAvatar === user_avatar;
         const isDefault = userAvatar === power_user.default_persona;
         const listItem = $('<li tabindex="0" class="list-group-item interactable"><img class="quickPersonaMenuImg"/></li>');
@@ -81,8 +83,10 @@ function closeQuickPersonaSelector() {
 
 function changeQuickPersona() {
     setTimeout(() => {
+        const personaName = power_user.personas[user_avatar] || user_avatar;
+        const personaTitle = power_user.persona_descriptions[user_avatar]?.title || '';
         const imgUrl = getImageUrl(user_avatar);
-        const imgTitle = power_user.personas[user_avatar] || user_avatar;
+        const imgTitle = personaTitle ? `${personaName} - ${personaTitle}` : personaName;
         $('#quickPersonaImg').attr('src', imgUrl).attr('title', imgTitle);
     }, 100);
 }
